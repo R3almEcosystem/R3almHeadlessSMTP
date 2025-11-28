@@ -17,19 +17,37 @@ export interface SMTPConfig {
   fromName?: string;
 }
 
-// Make KV happy with types
-type KVConfig = SMTPConfig & Record<string, unknown>;
+// This satisfies Vercel KV's type requirements perfectly
+type KVSafeConfig = Record<string, string | number | boolean | undefined>;
 
 export async function getSMTPConfig(): Promise<SMTPConfig | null> {
-  const data = await kv.hgetall<KVConfig>('smtp_config');
-  return data ?? null;
+  const data = await kv.hgetall<KVSafeConfig>('smtp_config');
+  if (!data || Object.keys(data).length === 0) return null;
+
+  return {
+    host: data.host as string,
+    port: Number(data.port),
+    secure: Boolean(data.secure),
+    user: data.user as string,
+    pass: data.pass as string,
+    fromEmail: data.fromEmail as string,
+    fromName: data.fromName as string | undefined,
+  };
 }
 
 export async function saveSMTPConfig(config: SMTPConfig) {
-  await kv.hset('smtp_config', config as Record<string, unknown>);
+  const safeConfig: KVSafeConfig = {
+    host: config.host,
+    port: config.port,
+    secure: config.secure,
+    user: config.user,
+    pass: config.pass,
+    fromEmail: config.fromEmail,
+    fromName: config.fromName,
+  };
+  await kv.hset('smtp_config', safeConfig);
 }
 
-// THE MISSING FUNCTION – THIS IS WHAT WAS BREAKING THE BUILD
 export async function sendEmail(to: string, subject: string, text: string, html?: string) {
   const config = await getSMTPConfig();
   if (!config) throw new Error('SMTP not configured');
@@ -38,10 +56,7 @@ export async function sendEmail(to: string, subject: string, text: string, html?
     host: config.host,
     port: config.port,
     secure: config.secure,
-    auth: {
-      user: config.user,
-      pass: config.pass,
-    },
+    auth: { user: config.user, pass: config.pass },
   });
 
   await transporter.sendMail({
