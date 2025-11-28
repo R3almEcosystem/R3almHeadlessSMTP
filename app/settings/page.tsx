@@ -1,139 +1,235 @@
+// app/settings/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
 
-const PASSWORD = 'change-me-123'; // Match with env later
+const ADMIN_PASSWORD = 'change-me-immediately'; // ← Change this or use env later
 
 export default function SettingsPage() {
   const [config, setConfig] = useState({
-    host: '', port: 587, secure: false, user: '', pass: '', from: ''
+    host: '',
+    port: 587,
+    secure: true,
+    user: '',
+    pass: '',
+    fromEmail: '',
+    fromName: '',
   });
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  const [password, setPassword] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
+  // Load config on mount
   useEffect(() => {
-    fetch('/api/settings', {
-      headers: { Authorization: `Bearer ${PASSWORD}` }
-    })
-      .then(r => r.json())
-      .then(data => data.host && setConfig(data));
+    fetchConfig();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage('');
-
-    const res = await fetch('/api/settings', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${PASSWORD}`
-      },
-      body: JSON.stringify(config)
-    });
-
-    if (res.ok) {
-      setMessage('SMTP settings saved!');
-    } else {
-      setMessage('Failed to save');
+  async function fetchConfig() {
+    try {
+      const res = await fetch('/api/settings', {
+        headers: { Authorization: `Bearer ${ADMIN_PASSWORD}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setConfig(data);
+        setIsAuthenticated(true);
+      }
+    } catch (err) {
+      console.log('No config yet or wrong password');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-  };
+  }
 
-  return (
-    <div className="max-w-2xl mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-8">SMTP Email Settings</h1>
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label className="block text-sm font-medium">SMTP Host</label>
-          <input
-            type="text"
-            required
-            value={config.host}
-            onChange={e => setConfig({ ...config, host: e.target.value })}
-            className="mt-1 block w-full rounded border px-3 py-2"
-          />
-        </div>
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (password !== ADMIN_PASSWORD) {
+      setMessage({ type: 'error', text: 'Wrong password' });
+      return;
+    }
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label>Port</label>
-            <input
-              type="number"
-              value={config.port}
-              onChange={e => setConfig({ ...config, port: +e.target.value })}
-              className="mt-1 block w-full rounded border px-3 py-2"
-            />
-          </div>
-          <div className="flex items-end">
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={config.secure}
-                onChange={e => setConfig({ ...config, secure: e.target.checked })}
-              />
-              <span>Use SSL/TLS</span>
-            </label>
-          </div>
-        </div>
+    setSaving(true);
+    setMessage(null);
 
-        <div>
-          <label>Username</label>
-          <input
-            type="text"
-            required
-            value={config.user}
-            onChange={e => setConfig({ ...config, user: e.target.value })}
-            className="mt-1 block w-full rounded border px-3 py-2"
-          />
-        </div>
+    try {
+      const res = await fetch('/api/settings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${ADMIN_PASSWORD}`,
+        },
+        body: JSON.stringify(config),
+      });
 
-        <div>
-          <label>Password</label>
+      if (res.ok) {
+        setMessage({ type: 'success', text: 'SMTP config saved successfully!' });
+        setIsAuthenticated(true);
+      } else {
+        throw new Error('Failed to save');
+      }
+    } catch (err) {
+      setMessage({ type: 'error', text: 'Failed to save config' });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-xl text-gray-600">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
+          <h1 className="text-2xl font-bold text-center mb-8">R3alm Headless SMTP</h1>
           <input
             type="password"
+            placeholder="Enter admin password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
-            value={config.pass}
-            onChange={e => setConfig({ ...config, pass: e.target.value })}
-            className="mt-1 block w-full rounded border px-3 py-2"
           />
+          <button
+            type="submit"
+            className="mt-4 w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition"
+          >
+            Unlock Settings
+          </button>
+        </form>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-12 px-4">
+      <div className="max-w-2xl mx-auto">
+        <div className="bg-white rounded-xl shadow-lg p-8">
+          <h1 className="text-3xl font-bold mb-2">SMTP Settings</h1>
+          <p className="text-gray-600 mb-8">Configure your email provider</p>
+
+          {message && (
+            <div
+              className={`mb-6 p-4 rounded-lg text-white font-medium ${
+                message.type === 'success' ? 'bg-green-600' : 'bg-red-600'
+              }`}
+            >
+              {message.text}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Host</label>
+                <input
+                  type="text"
+                  value={config.host}
+                  onChange={(e) => setConfig({ ...config, host: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="smtp.gmail.com"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Port</label>
+                <input
+                  type="number"
+                  value={config.port}
+                  onChange={(e) => setConfig({ ...config, port: Number(e.target.value) })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={config.secure}
+                  onChange={(e) => setConfig({ ...config, secure: e.target.checked })}
+                  className="w-5 h-5 text-blue-600 rounded"
+                />
+                <span className="text-sm font-medium text-gray-700">Use TLS/SSL (Secure)</span>
+              </label>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                <input
+                  type="text"
+                  value={config.user}
+                  onChange={(e) => setConfig({ ...config, user: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="your-email@gmail.com"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                <input
+                  type="password"
+                  value={config.pass}
+                  onChange={(e) => setConfig({ ...config, pass: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">From Email</label>
+                <input
+                  type="email"
+                  value={config.fromEmail}
+                  onChange={(e) => setConfig({ ...config, fromEmail: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">From Name (optional)</label>
+                <input
+                  type="text"
+                  value={config.fromName}
+                  onChange={(e) => setConfig({ ...config, fromName: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="R3alm Notifications"
+                />
+              </div>
+            </div>
+
+            <div className="pt-6">
+              <button
+                type="submit"
+                disabled={saving}
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-70 text-white font-bold py-4 rounded-lg transition text-lg"
+              >
+                {saving ? 'Saving...' : 'Save SMTP Configuration'}
+              </button>
+            </div>
+          </form>
+
+          <div className="mt-12 pt-8 border-t border-gray-200 text-center text-sm text-gray-500">
+            <p>Headless SMTP API is live at:</p>
+            <code className="bg-gray-100 px-3 py-1 rounded mt-2 inline-block">
+              POST /api/send
+            </code>
+          </div>
         </div>
-
-        <div>
-          <label>From Email</label>
-          <input
-            type="email"
-            required
-            value={config.from}
-            onChange={e => setConfig({ ...config, from: e.target.value })}
-            className="mt-1 block w-full rounded border px-3 py-2"
-          />
-        </div>
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 disabled:opacity-50"
-        >
-          {loading ? 'Saving...' : 'Save SMTP Settings'}
-        </button>
-
-        {message && <p className="mt-4 text-green-600 font-medium">{message}</p>}
-      </form>
-
-      <div className="mt-12 p-6 bg-gray-100 rounded">
-        <h2 className="font-bold mb-2">Test Send (via API)</h2>
-        <pre className="text-sm bg-black text-green-400 p-4 rounded overflow-x-auto">
-{`curl -X POST https://your-app.vercel.app/api/send \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "to": "test@example.com",
-    "subject": "Hello from Edge",
-    "text": "This works!",
-    "html": "<h1>Hello</h1>"
-  }'`}
-        </pre>
       </div>
     </div>
   );
