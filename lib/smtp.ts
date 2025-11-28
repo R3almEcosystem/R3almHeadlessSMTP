@@ -1,5 +1,11 @@
-import nodemailer from 'nodemailer';
-import { kv } from '@vercel/kv';
+// lib/smtp.ts
+import { createClient } from '@vercel/kv';
+
+// Replace with your actual KV URL and token from Vercel dashboard
+const kv = createClient({
+  url: process.env.KV_URL!,
+  token: process.env.KV_TOKEN!,
+});
 
 export interface SMTPConfig {
   host: string;
@@ -7,36 +13,19 @@ export interface SMTPConfig {
   secure: boolean;
   user: string;
   pass: string;
-  from: string;
+  fromEmail: string;
+  fromName?: string;
 }
 
+// This is the magic line – satisfies Record<string, unknown>
+type KVCompatibleConfig = SMTPConfig & Record<string, unknown>;
+
 export async function getSMTPConfig(): Promise<SMTPConfig | null> {
-  return await kv.hgetall<SMTPConfig>('smtp_config');
+  const data = await kv.hgetall<KVCompatibleConfig>('smtp_config');
+  return data ?? null;
 }
 
 export async function saveSMTPConfig(config: SMTPConfig) {
-  await kv.hset('smtp_config', config);
-}
-
-export async function sendEmail(to: string, subject: string, text: string, html?: string) {
-  const config = await getSMTPConfig();
-  if (!config) throw new Error('SMTP not configured');
-
-  const transporter = nodemailer.createTransporter({
-    host: config.host,
-    port: config.port,
-    secure: config.secure,
-    auth: {
-      user: config.user,
-      pass: config.pass,
-    },
-  });
-
-  await transporter.sendMail({
-    from: config.from,
-    to,
-    subject,
-    text,
-    html,
-  });
+  await kv.hset('smtp_config', config as Record<string, unknown>);
+  return true;
 }
