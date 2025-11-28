@@ -1,20 +1,24 @@
-import { NextRequest } from 'next/server';
-import { sendEmail } from '../../../lib/smtp';  // ← relative path
+// app/api/send/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { sendEmail } from '@/lib/smtp';   // ← fixed
 
-// NO runtime = 'edge' → runs on Node.js (perfect)
+export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
   try {
     const { to, subject, text, html } = await req.json();
+
     if (!to || !subject || !text) {
-      return new Response('Missing required fields', { status: 400 });
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
+
     await sendEmail(to, subject, text, html);
-    return new Response(JSON.stringify({ success: true }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return NextResponse.json({ success: true });
   } catch (error: any) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    console.error('Send email failed:', error);
+    return NextResponse.json(
+      { error: error.message || 'Failed to send email' },
+      { status: 500 }
+    );
   }
 }
