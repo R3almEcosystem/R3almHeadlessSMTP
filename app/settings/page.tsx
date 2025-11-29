@@ -1,9 +1,9 @@
-// app/settings/page.tsx
+// app/settings/page.tsx – V4.2
 'use client';
 
 import { useState, useEffect } from 'react';
 
-const ADMIN_PASSWORD = 'change-me-immediately'; // ← Change this or use env later
+const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'change-me-immediately'; // V4.2: Use env for security
 
 export default function SettingsPage() {
   const [config, setConfig] = useState({
@@ -78,28 +78,30 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-xl text-gray-600">Loading...</div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-xl text-gray-600 animate-pulse">Loading...</div>
       </div>
     );
   }
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
-          <h1 className="text-2xl font-bold text-center mb-8">R3alm Headless SMTP</h1>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center p-4">
+        <form onSubmit={handleSubmit} className="glass rounded-2xl shadow-2xl p-8 w-full max-w-md">
+          <h1 className="text-3xl font-black text-center mb-8 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            R3alm Headless SMTP
+          </h1>
           <input
             type="password"
             placeholder="Enter admin password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
             required
           />
           <button
             type="submit"
-            className="mt-4 w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition"
+            className="mt-4 w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl font-bold hover:scale-105 transition-all duration-300"
           >
             Unlock Settings
           </button>
@@ -109,16 +111,20 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-12 px-4">
       <div className="max-w-2xl mx-auto">
-        <div className="bg-white rounded-xl shadow-lg p-8">
-          <h1 className="text-3xl font-bold mb-2">SMTP Settings</h1>
+        <div className="glass rounded-2xl shadow-2xl p-8">
+          <h1 className="text-4xl font-black mb-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            SMTP Settings
+          </h1>
           <p className="text-gray-600 mb-8">Configure your email provider</p>
 
           {message && (
             <div
-              className={`mb-6 p-4 rounded-lg text-white font-medium ${
-                message.type === 'success' ? 'bg-green-600' : 'bg-red-600'
+              className={`mb-6 p-4 rounded-xl text-white font-bold transition-all ${
+                message.type === 'success' 
+                  ? 'bg-gradient-to-r from-green-500 to-green-600 animate-pulse' 
+                  : 'bg-gradient-to-r from-red-500 to-red-600'
               }`}
             >
               {message.text}
@@ -128,24 +134,24 @@ export default function SettingsPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Host</label>
+                <label className="block text-sm font-bold text-gray-700 mb-2">Host</label>
                 <input
                   type="text"
                   value={config.host}
                   onChange={(e) => setConfig({ ...config, host: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   placeholder="smtp.gmail.com"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Port</label>
+                <label className="block text-sm font-bold text-gray-700 mb-2">Port</label>
                 <input
                   type="number"
                   value={config.port}
                   onChange={(e) => setConfig({ ...config, port: Number(e.target.value) })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 transition-all"
                   required
                 />
               </div>
@@ -157,32 +163,32 @@ export default function SettingsPage() {
                   type="checkbox"
                   checked={config.secure}
                   onChange={(e) => setConfig({ ...config, secure: e.target.checked })}
-                  className="w-5 h-5 text-blue-600 rounded"
+                  className="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 transition-all"
                 />
-                <span className="text-sm font-medium text-gray-700">Use TLS/SSL (Secure)</span>
+                <span className="text-sm font-bold text-gray-700">Use TLS/SSL (Secure)</span>
               </label>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                <label className="block text-sm font-bold text-gray-700 mb-2">Username</label>
                 <input
                   type="text"
                   value={config.user}
                   onChange={(e) => setConfig({ ...config, user: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 transition-all"
                   placeholder="your-email@gmail.com"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                <label className="block text-sm font-bold text-gray-700 mb-2">Password</label>
                 <input
                   type="password"
                   value={config.pass}
                   onChange={(e) => setConfig({ ...config, pass: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 transition-all"
                   required
                 />
               </div>
@@ -190,23 +196,23 @@ export default function SettingsPage() {
 
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">From Email</label>
+                <label className="block text-sm font-bold text-gray-700 mb-2">From Email</label>
                 <input
                   type="email"
                   value={config.fromEmail}
                   onChange={(e) => setConfig({ ...config, fromEmail: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 transition-all"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">From Name (optional)</label>
+                <label className="block text-sm font-bold text-gray-700 mb-2">From Name (optional)</label>
                 <input
                   type="text"
                   value={config.fromName}
                   onChange={(e) => setConfig({ ...config, fromName: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 transition-all"
                   placeholder="R3alm Notifications"
                 />
               </div>
@@ -216,7 +222,7 @@ export default function SettingsPage() {
               <button
                 type="submit"
                 disabled={saving}
-                className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-70 text-white font-bold py-4 rounded-lg transition text-lg"
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:opacity-70 text-white font-bold py-4 rounded-xl transition-all duration-300 text-lg hover:scale-105"
               >
                 {saving ? 'Saving...' : 'Save SMTP Configuration'}
               </button>
@@ -225,7 +231,7 @@ export default function SettingsPage() {
 
           <div className="mt-12 pt-8 border-t border-gray-200 text-center text-sm text-gray-500">
             <p>Headless SMTP API is live at:</p>
-            <code className="bg-gray-100 px-3 py-1 rounded mt-2 inline-block">
+            <code className="bg-gray-100 px-3 py-1 rounded mt-2 inline-block font-mono">
               POST /api/send
             </code>
           </div>

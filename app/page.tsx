@@ -1,4 +1,4 @@
-// app/page.tsx
+// app/page.tsx – V4.2
 import Link from 'next/link';
 import { Mail, Send, Zap, Shield, Rocket, CheckCircle } from 'lucide-react';
 
@@ -27,14 +27,14 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row gap-8 justify-center">
             <Link
               href="/send-test"
-              className="group inline-flex items-center gap-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold text-xl py-6 px-12 rounded-2xl hover:scale-105 transition-all shadow-2xl"
+              className="group inline-flex items-center gap-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold text-xl py-6 px-12 rounded-2xl hover:scale-105 transition-all duration-300 shadow-2xl animate-scale-hover"
             >
-              <Rocket className="w-8 h-8 group-hover:translate-x-2 transition" />
+              <Rocket className="w-8 h-8 group-hover:translate-x-2 transition-transform duration-300" />
               Send Your First Email Now
             </Link>
             <Link
               href="/settings"
-              className="inline-flex items-center gap-4 bg-white/90 backdrop-blur-lg text-gray-800 font-bold text-xl py-6 px-12 rounded-2xl hover:scale-105 transition-all shadow-2xl border-2 border-gray-200"
+              className="inline-flex items-center gap-4 bg-white/90 backdrop-blur-lg text-gray-800 font-bold text-xl py-6 px-12 rounded-2xl hover:scale-105 transition-all duration-300 shadow-2xl border-2 border-gray-200"
             >
               <Shield className="w-8 h-8" />
               Configure in 10 Seconds
@@ -56,7 +56,7 @@ export default function Home() {
               { icon: Zap, title: "Zero Latency", desc: "No third-party relay. Direct SMTP connection" },
             ].map((f, i) => (
               <div key={i} className="text-center group">
-                <div className="w-24 h-24 mx-auto mb-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-xl">
+                <div className="w-24 h-24 mx-auto mb-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-xl">
                   <f.icon className="w-12 h-12 text-white" />
                 </div>
                 <h3 className="text-2xl font-bold mb-4">{f.title}</h3>

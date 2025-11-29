@@ -1,12 +1,19 @@
-/* app/globals.css */
+/* app/globals.css – V4.2 */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Optional: smooth scrolling & better fonts */
+/* Custom overrides for glassmorphism & smooth animations */
 html {
   scroll-behavior: smooth;
 }
 body {
   font-feature-settings: 'rlig' 1, 'calt' 1;
+}
+
+/* Glass effect utilities (fallback if Tailwind plugins missing) */
+@layer utilities {
+  .glass {
+    @apply backdrop-blur-xl bg-white/70 border-white/20;
+  }
 }
