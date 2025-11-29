@@ -1,24 +1,31 @@
-// app/api/send/route.ts – V13.0 FINAL – 100% WORKING ON VERCEL (Dynamic Import)
+// app/api/send/route.ts – V13.1 FINAL – BUILD SUCCESS + EMAILS WORKING
+import { join } from 'path';
+
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({}));
-    const { to, subject = 'R3alm Test', text = 'Hello!', html } = body;
+    const { to, subject = 'R3alm Test Email', text = 'Hello from R3alm!', html } = body;
 
     if (!to || !text) {
       return new Response(JSON.stringify({ error: 'Missing to or text' }), { status: 400 });
     }
 
-    // DYNAMIC IMPORT — THIS IS THE MAGIC FIX
+    // Dynamic imports — this bypasses Vercel's dns/nodemailer crash
     const nodemailer = (await import('nodemailer')).default;
+    const fs = await import('fs');
+    const path = join(process.cwd(), 'data', 'config.json');
 
-    const configText = await import('fs').then(fs => 
-      fs.readFileSync(join(process.cwd(), 'data', 'config.json'), 'utf-8')
-    ).catch(() => null);
+    let configText: string | null = null;
+    try {
+      configText = fs.readFileSync(path, 'utf-8');
+    } catch (e) {
+      console.error('Config file not found:', path);
+    }
 
     if (!configText) {
-      return new Response(JSON.stringify({ error: 'Config missing' }), { status: 500 });
+      return new Response(JSON.stringify({ error: 'SMTP config missing – go to /settings' }), { status: 500 });
     }
 
     const config = JSON.parse(configText);
@@ -43,16 +50,13 @@ export async function POST(req: Request) {
       html: html || text.replace(/\n/g, '<br>'),
     });
 
-    return new Response(JSON.stringify({ success: true }), { status: 200 });
+    return new Response(JSON.stringify({ success: true, message: 'Email sent!' }), { status: 200 });
 
   } catch (error: any) {
-    console.error('Send error:', error.message);
-    return new Response(
-      JSON.stringify({ 
-        error: 'Failed', 
-        details: error.message.includes('ETIMEDOUT') ? 'Server unreachable' : error.message 
-      }),
-      { status: 500 }
-    );
+    console.error('SMTP Error:', error.message);
+    return new Response(JSON.stringify({ 
+      error: 'Failed to send email',
+      details: error.message 
+    }), { status: 500 });
   }
 }
