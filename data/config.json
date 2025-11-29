@@ -2,11 +2,11 @@
   "adminPassword": "Z3us!@#$1",
   "smtp": {
     "host": "mail.r3alm.com",
-    "port": 485,
-    "secure": true,
+    "port": 587,
+    "secure": false,
     "user": "no-reply@r3alm.com",
     "pass": "Z3us!@#$1r3alm",
     "fromEmail": "no-reply@r3alm.com",
-    "fromName": "R3alm Headless SMTP"
+    "fromName": "R3alm Ecosystem"
   }
 }
