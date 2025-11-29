@@ -1,11 +1,25 @@
-// app/settings/page.tsx – V6.2 (final, clean, working)
+// app/settings/page.tsx – V9.0 (Final, Vercel-compatible)
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getAdminPassword, getSMTPConfig, saveSMTPConfig } from '@/lib/smtp';
+
+interface SMTPConfig {
+  host: string;
+  port: number;
+  secure: boolean;
+  user: string;
+  pass: string;
+  fromEmail: string;
+  fromName?: string;
+}
+
+interface FullConfig {
+  adminPassword: string;
+  smtp: SMTPConfig;
+}
 
 export default function SettingsPage() {
-  const [config, setConfig] = useState({
+  const [config, setConfig] = useState<SMTPConfig>({
     host: '',
     port: 587,
     secure: true,
@@ -21,26 +35,26 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
+  // Load config on mount
   useEffect(() => {
-    async function load() {
-      const [savedConfig, adminPass] = await Promise.all([
-        getSMTPConfig(),
-        getAdminPassword(),
-      ]);
-      if (savedConfig) {
-        setConfig(savedConfig);
-        setIsAuthenticated(true);
-      }
-      setStoredPassword(adminPass);
-      setLoading(false);
-    }
-    load();
+    fetch('/api/config')
+      .then((res) => res.json())
+      .then((data: FullConfig) => {
+        setStoredPassword(data.adminPassword);
+        if (data.smtp.host) {
+          setConfig(data.smtp);
+          setIsAuthenticated(true);
+        }
+      })
+      .catch(() => {
+        setStoredPassword('r3alm-2025-change-me');
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    // Check admin password
     if (password !== storedPassword) {
       setMessage({ type: 'error', text: 'Wrong admin password' });
       return;
@@ -50,7 +64,17 @@ export default function SettingsPage() {
     setMessage(null);
 
     try {
-      await saveSMTPConfig(config);
+      const res = await fetch('/api/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          adminPassword: storedPassword,
+          smtp: config,
+        }),
+      });
+
+      if (!res.ok) throw new Error('Save failed');
+
       setMessage({ type: 'success', text: 'SMTP config saved successfully!' });
       setIsAuthenticated(true);
     } catch (err) {
@@ -105,7 +129,9 @@ export default function SettingsPage() {
 
           {message && (
             <div className={`mb-8 p-6 rounded-2xl text-white font-bold text-lg transition-all ${
-              message.type === 'success' ? 'bg-gradient-to-r from-green-500 to-emerald-600' : 'bg-gradient-to-r from-red-500 to-rose-600'
+              message.type === 'success'
+                ? 'bg-gradient-to-r from-green-500 to-emerald-600'
+                : 'bg-gradient-to-r from-red-500 to-rose-600'
             }`}>
               {message.text}
             </div>
@@ -185,7 +211,7 @@ export default function SettingsPage() {
                 <label className="block text-lg font-bold text-gray-700 mb-3">From Name (optional)</label>
                 <input
                   type="text"
-                  value={config.fromName}
+                  value={config.fromName || ''}
                   onChange={(e) => setConfig({ ...config, fromName: e.target.value })}
                   className="w-full px-6 py-4 border border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-500 text-lg"
                   placeholder="R3alm Notifications"
