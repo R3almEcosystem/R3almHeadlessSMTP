@@ -1,105 +1,81 @@
-// app/send-test/page.tsx
-'use client';
+// app/page.tsx
+import Link from 'next/link';
+import { Mail, Send, Settings, CheckCircle } from 'lucide-react';
 
-import { useState } from 'react';
-
-export default function SendTestPage() {
-  const [form, setForm] = useState({ to: '', subject: 'Test from R3alm SMTP', text: 'Hello!\n\nThis is a test email sent from your headless SMTP service.\n\nIt works perfectly! 🎉' });
-  const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
-  const [message, setMessage] = useState('');
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setStatus('sending');
-    setMessage('');
-
-    try {
-      const res = await fetch('/api/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        setStatus('success');
-        setMessage('Email sent successfully!');
-      } else {
-        throw new Error(data.error || 'Failed to send');
-      }
-    } catch (err: any) {
-      setStatus('error');
-      setMessage(err.message || 'Something went wrong');
-    }
-  }
-
+export default function Home() {
   return (
-    <div className="min-h-screen py-12 px-4">
-      <div className="max-w-2xl mx-auto">
-        <div className="bg-white rounded-xl shadow-lg p-8">
-          <h1 className="text-3xl font-bold mb-2">Send Test Email</h1>
-          <p className="text-gray-600 mb-8">Test your SMTP configuration instantly</p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+      {/* Hero Section */}
+      <section className="pt-32 pb-20 px-6 text-center">
+        <div className="max-w-5xl mx-auto">
+          <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
+            <CheckCircle className="w-4 h-4" />
+            100% Self-hosted • No backend needed
+          </div>
 
-          {status === 'success' && (
-            <div className="mb-6 p-4 bg-green-100 text-green-800 rounded-lg font-medium">
-              {message}
-            </div>
-          )}
-          {status === 'error' && (
-            <div className="mb-6 p-4 bg-red-100 text-red-800 rounded-lg font-medium">
-              {message}
-            </div>
-          )}
+          <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6 leading-tight">
+            R3alm Headless SMTP
+          </h1>
+          <p className="text-xl md:text-2xl text-gray-600 mb-10 max-w-3xl mx-auto">
+            Send transactional emails instantly using your own SMTP server. 
+            Zero backend, zero lock-in, fully open source.
+          </p>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">To (recipient email)</label>
-              <input
-                type="email"
-                required
-                value={form.to}
-                onChange={(e) => setForm({ ...form, to: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600"
-                placeholder="recipient@example.com"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Subject</label>
-              <input
-                type="text"
-                required
-                value={form.subject}
-                onChange={(e) => setForm({ ...form, subject: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Message</label>
-              <textarea
-                rows={6}
-                value={form.text}
-                onChange={(e) => setForm({ ...form, text: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 font-mono text-sm"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={status === 'sending'}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-70 text-white font-bold py-4 rounded-lg transition text-lg"
+          <div className="flex flex-col sm:flex-row gap-6 justify-center">
+            <Link
+              href="/send-test"
+              className="inline-flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-bold py-5 px-10 rounded-xl text-lg transition shadow-lg"
             >
-              {status === 'sending' ? 'Sending...' : 'Send Test Email'}
-            </button>
-          </form>
-
-          <div className="mt-10 text-center text-sm text-gray-500">
-            API Endpoint: <code className="bg-gray-100 px-2 py-1 rounded">POST /api/send</code>
+              <Send className="w-6 h-6" />
+              Send Your First Email
+            </Link>
+            <Link
+              href="/settings"
+              className="inline-flex items-center gap-3 bg-white hover:bg-gray-50 text-blue-600 border-2 border-blue-600 font-bold py-5 px-10 rounded-xl text-lg transition shadow-lg"
+            >
+              <Settings className="w-6 h-6" />
+              Configure SMTP
+            </Link>
           </div>
         </div>
-      </div>
+      </section>
+
+      {/* Features */}
+      <section className="py-20 bg-white">
+        <div className="max-w-6xl mx-auto px-6">
+          <h2 className="text-4xl font-bold text-center mb-16">Everything you need</h2>
+          <div className="grid md:grid-cols-3 gap-10">
+            <div className="text-center">
+              <div className="w-20 h-20 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <Mail className="w-10 h-10 text-blue-600" />
+              </div>
+              <h3 className="text-xl font-bold mb-3">Instant Delivery</h3>
+              <p className="text-gray-600">Send emails directly via your SMTP provider</p>
+            </div>
+            <div className="text-center">
+              <div className="w-20 h-20 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <CheckCircle className="w-10 h-10 text-green-600" />
+              </div>
+              <h3 className="text-xl font-bold mb-3">Zero Config API</h3>
+              <p className="text-gray-600">Just POST to /api/send — works with any language</p>
+            </div>
+            <div className="text-center">
+              <div className="w-20 h-20 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <Settings className="w-10 h-10 text-purple-600" />
+              </div>
+              <h3 className="text-xl font-bold mb-3">Beautiful Dashboard</h3>
+              <p className="text-gray-600">Configure and test everything in one place</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-12 text-center text-gray-500">
+        <p className="text-sm">
+          R3alm Headless SMTP • Open Source • Deployed on Vercel
+        </p>
+      </footer>
     </div>
   );
 }
