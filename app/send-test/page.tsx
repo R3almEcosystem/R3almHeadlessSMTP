@@ -1,82 +1,123 @@
-// Version x
-// app/page.tsx
-import Link from 'next/link';
-import { Mail, Send, Settings, CheckCircle } from 'lucide-react';
+// app/send-test/page.tsx – FINAL (Cyberpunk Test Email Page)
+'use client';
 
-export default function Home() {
+import { useState } from 'react';
+
+export default function SendTestPage() {
+  const [to, setTo] = useState('');
+  const [subject, setSubject] = useState('Test Email from R3alm Headless SMTP');
+  const [message, setMessage] = useState('Hello from R3alm!\n\nThis is a test email sent from your headless SMTP server.\n\nYou did it. 🔥');
+  const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+  const [result, setResult] = useState<string>('');
+
+  async function handleSend(e: React.FormEvent) {
+    e.preventDefault();
+    setStatus('sending');
+    setResult('');
+
+    try {
+      const res = await fetch('/api/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to,
+          subject,
+          text: message,
+          html: message.replace(/\n/g, '<br>'),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setStatus('success');
+        setResult(`Email sent successfully to ${to}!`);
+      } else {
+        throw new Error(data.error || 'Failed to send');
+      }
+    } catch (err: any) {
+      setStatus('error');
+      setResult(`Error: ${err.message}`);
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-      {/* Hero Section */}
-      <section className="pt-32 pb-20 px-6 text-center">
-        <div className="max-w-5xl mx-auto">
-          <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
-            <CheckCircle className="w-4 h-4" />
-            100% Self-hosted • No backend needed
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-12 px-4">
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl p-12 border border-white/20">
+          <div className="text-center mb-12">
+            <h1 className="text-7xl font-black bg-gradient-to-r from-cyan-400 to-purple-600 bg-clip-text text-transparent">
+              Send Test Email
+            </h1>
+            <p className="text-2xl text-white/80 mt-6">Fire a real email through your R3alm SMTP server</p>
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6 leading-tight">
-            R3alm Headless SMTP
-          </h1>
-          <p className="text-xl md:text-2xl text-gray-600 mb-10 max-w-3xl mx-auto">
-            Send transactional emails instantly using your own SMTP server. 
-            Zero backend, zero lock-in, fully open source.
-          </p>
+          {status === 'success' && (
+            <div className="mb-10 p-8 bg-green-600/30 border-2 border-green-500 rounded-2xl text-center">
+              <p className="text-3xl font-bold text-green-300">SUCCESS</p>
+              <p className="text-xl text-white mt-4">{result}</p>
+            </div>
+          )}
 
-          <div className="flex flex-col sm:flex-row gap-6 justify-center">
-            <Link
-              href="/send-test"
-              className="inline-flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-bold py-5 px-10 rounded-xl text-lg transition shadow-lg"
-            >
-              <Send className="w-6 h-6" />
-              Send Your First Email
-            </Link>
-            <Link
-              href="/settings"
-              className="inline-flex items-center gap-3 bg-white hover:bg-gray-50 text-blue-600 border-2 border-blue-600 font-bold py-5 px-10 rounded-xl text-lg transition shadow-lg"
-            >
-              <Settings className="w-6 h-6" />
-              Configure SMTP
-            </Link>
+          {status === 'error' && (
+            <div className="mb-10 p-8 bg-red-600/30 border-2 border-red-500 rounded-2xl text-center">
+              <p className="text-3xl font-bold text-red-300">FAILED</p>
+              <p className="text-xl text-white mt-4">{result}</p>
+            </div>
+          )}
+
+          <form onSubmit={handleSend} className="space-y-10">
+            <div>
+              <label className="block text-xl font-bold text-cyan-300 mb-4">To (Recipient Email)</label>
+              <input
+                type="email"
+                value={to}
+                onChange={(e) => setTo(e.target.value)}
+                placeholder="you@example.com"
+                required
+                className="w-full px-8 py-6 bg-white/20 border border-white/30 rounded-xl text-white text-xl placeholder-white/50 focus:outline-none focus:ring-4 focus:ring-cyan-500 transition-all"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xl font-bold text-cyan-300 mb-4">Subject</label>
+              <input
+                type="text"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                className="w-full px-8 py-6 bg-white/20 border border-white/30 rounded-xl text-white text-xl focus:outline-none focus:ring-4 focus:ring-cyan-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xl font-bold text-cyan-300 mb-4">Message</label>
+              <textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                rows={8}
+                className="w-full px-8 py-6 bg-white/20 border border-white/30 rounded-xl text-white text-lg font-mono focus:outline-none focus:ring-4 focus:ring-cyan-500 resize-none"
+              />
+            </div>
+
+            <div className="text-center pt-8">
+              <button
+                type="submit"
+                disabled={status === 'sending' || !to}
+                className="px-24 py-10 bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-black text-5xl rounded-3xl hover:scale-110 transition-all duration-500 shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {status === 'sending' ? 'SENDING...' : 'SEND TEST EMAIL'}
+              </button>
+            </div>
+          </form>
+
+          <div className="mt-16 text-center text-white/60">
+            <p className="text-lg">Powered by:</p>
+            <code className="inline-block mt-4 px-10 py-6 bg-black/50 rounded-2xl text-green-400 text-2xl font-mono border border-green-500/50">
+              mail.r3alm.com:465
+            </code>
           </div>
         </div>
-      </section>
-
-      {/* Features */}
-      <section className="py-20 bg-white">
-        <div className="max-w-6xl mx-auto px-6">
-          <h2 className="text-4xl font-bold text-center mb-16">Everything you need</h2>
-          <div className="grid md:grid-cols-3 gap-10">
-            <div className="text-center">
-              <div className="w-20 h-20 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <Mail className="w-10 h-10 text-blue-600" />
-              </div>
-              <h3 className="text-xl font-bold mb-3">Instant Delivery</h3>
-              <p className="text-gray-600">Send emails directly via your SMTP provider</p>
-            </div>
-            <div className="text-center">
-              <div className="w-20 h-20 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <CheckCircle className="w-10 h-10 text-green-600" />
-              </div>
-              <h3 className="text-xl font-bold mb-3">Zero Config API</h3>
-              <p className="text-gray-600">Just POST to /api/send — works with any language</p>
-            </div>
-            <div className="text-center">
-              <div className="w-20 h-20 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <Settings className="w-10 h-10 text-purple-600" />
-              </div>
-              <h3 className="text-xl font-bold mb-3">Beautiful Dashboard</h3>
-              <p className="text-gray-600">Configure and test everything in one place</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="py-12 text-center text-gray-500">
-        <p className="text-sm">
-          R3alm Headless SMTP • Open Source • Deployed on Vercel
-        </p>
-      </footer>
+      </div>
     </div>
   );
 }
