@@ -1,3 +1,4 @@
+// Version x
 // app/page.tsx
 import Link from 'next/link';
 import { Mail, Send, Settings, CheckCircle } from 'lucide-react';
