@@ -1,0 +1,12 @@
+# wrangler.toml – V1.0 (Cloudflare Pages Next.js Config – Fixes Missing Entry-Point)
+name = "r3alm-headless-smtp"  # Your project name (matches Cloudflare dashboard)
+compatibility_date = "2025-11-29"
+compatibility_flags = ["nodejs_compat"]  # Enables Node APIs (fs, path) in API routes
+
+# Static assets from Next.js build
+[[assets]]
+directory = ".vercel/output/static"
+binding = "ASSETS"
+
+# Optional: For API routes as Workers (if needed beyond static)
+# main = ".vercel/output/server/pages/index.js"  # Uncomment if SSR-heavy
