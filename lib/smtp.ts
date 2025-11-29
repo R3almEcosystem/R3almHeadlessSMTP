@@ -1,11 +1,9 @@
-// lib/smtp.ts
-import { createClient } from '@vercel/kv';
+// lib/smtp.ts – V6.1 Local JSON with admin password (dev/testing only)
+import fs from 'fs';
+import path from 'path';
 import nodemailer from 'nodemailer';
 
-const kv = createClient({
-  url: process.env.KV_URL!,
-  token: process.env.KV_TOKEN!,
-});
+const DATA_FILE = path.join(process.cwd(), 'data', 'smtp.json');
 
 export interface SMTPConfig {
   host: string;
@@ -17,40 +15,77 @@ export interface SMTPConfig {
   fromName?: string;
 }
 
-// This satisfies Vercel KV's type requirements perfectly
-type KVSafeConfig = Record<string, string | number | boolean | undefined>;
-
-export async function getSMTPConfig(): Promise<SMTPConfig | null> {
-  const data = await kv.hgetall<KVSafeConfig>('smtp_config');
-  if (!data || Object.keys(data).length === 0) return null;
-
-  return {
-    host: data.host as string,
-    port: Number(data.port),
-    secure: Boolean(data.secure),
-    user: data.user as string,
-    pass: data.pass as string,
-    fromEmail: data.fromEmail as string,
-    fromName: data.fromName as string | undefined,
-  };
+export interface LocalStore {
+  adminPassword: string;
+  smtp: SMTPConfig;
 }
 
-export async function saveSMTPConfig(config: SMTPConfig) {
-  const safeConfig: KVSafeConfig = {
-    host: config.host,
-    port: config.port,
-    secure: config.secure,
-    user: config.user,
-    pass: config.pass,
-    fromEmail: config.fromEmail,
-    fromName: config.fromName,
-  };
-  await kv.hset('smtp_config', safeConfig);
+// Helper: read entire store
+function readStore(): LocalStore {
+  if (!fs.existsSync(DATA_FILE)) {
+    // Auto-create with defaults if missing
+    const defaultStore: LocalStore = {
+      adminPassword: 'r3alm-dev-2025-change-me',
+      smtp: {
+        host: '',
+        port: 587,
+        secure: true,
+        user: '',
+        pass: '',
+        fromEmail: '',
+        fromName: 'R3alm Headless SMTP',
+      },
+    };
+    writeStore(defaultStore);
+    return defaultStore;
+  }
+
+  try {
+    const raw = fs.readFileSync(DATA_FILE, 'utf-8');
+    return JSON.parse(raw) as LocalStore;
+  } catch (error) {
+    console.error('Failed to read config, using defaults');
+    const fallback: LocalStore = {
+      adminPassword: 'fallback-password-123',
+      smtp: { host: '', port: 587, secure: true, user: '', pass: '', fromEmail: '', fromName: '' },
+    };
+    writeStore(fallback);
+    return fallback;
+  }
+}
+
+// Helper: write entire store
+function writeStore(store: LocalStore) {
+  fs.mkdirSync(path.dirname(DATA_FILE), { recursive: true });
+  fs.writeFileSync(DATA_FILE, JSON.stringify(store, null, 2));
+}
+
+// Public API
+export async function getAdminPassword(): Promise<string> {
+  return readStore().adminPassword;
+}
+
+export async function setAdminPassword(newPassword: string): Promise<void> {
+  const store = readStore();
+  store.adminPassword = newPassword;
+  writeStore(store);
+}
+
+export async function getSMTPConfig(): Promise<SMTPConfig | null> {
+  const store = readStore();
+  const config = store.smtp;
+  return config.host ? config : null;
+}
+
+export async function saveSMTPConfig(config: SMTPConfig): Promise<void> {
+  const store = readStore();
+  store.smtp = config;
+  writeStore(store);
 }
 
 export async function sendEmail(to: string, subject: string, text: string, html?: string) {
   const config = await getSMTPConfig();
-  if (!config) throw new Error('SMTP not configured');
+  if (!config) throw new Error('SMTP not configured – save settings first');
 
   const transporter = nodemailer.createTransporter({
     host: config.host,
