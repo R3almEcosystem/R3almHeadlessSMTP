@@ -1,5 +1,3 @@
-# Run once – creates perfect starting file
-cat > data/smtp.json << 'EOF'
 {
   "adminPassword": "Z3us!@#$1",
   "smtp": {
@@ -11,5 +9,3 @@ cat > data/smtp.json << 'EOF'
     "fromEmail": "no-reply@r3alm.com",
     "fromName": "R3alm Headless SMTP"
   }
-}
-EOF
