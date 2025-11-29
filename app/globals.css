@@ -1,4 +1,4 @@
-/* app/globals.css – V4.2 */
+/* app/globals.css – V4.3 */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -11,7 +11,7 @@ body {
   font-feature-settings: 'rlig' 1, 'calt' 1;
 }
 
-/* Glass effect utilities (fallback if Tailwind plugins missing) */
+/* Glass effect utilities (Tailwind layer for consistency) */
 @layer utilities {
   .glass {
     @apply backdrop-blur-xl bg-white/70 border-white/20;

@@ -1,4 +1,4 @@
-// tailwind.config.js – V4.2
+// tailwind.config.js – V4.3
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -10,13 +10,6 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-      },
-      colors: {
-        primary: {
-          50: '#eff6ff',
-          500: '#3b82f6',
-          600: '#2563eb',
-        },
       },
       animation: {
         'scale-hover': 'scale 0.2s ease-in-out',
@@ -30,5 +23,4 @@ module.exports = {
     },
   },
   plugins: [],
-  darkMode: 'class', // Enable for future dark mode
 };
