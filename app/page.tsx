@@ -1,81 +1,81 @@
 // app/page.tsx
 import Link from 'next/link';
-import { Mail, Send, Settings, CheckCircle } from 'lucide-react';
+import { Mail, Send, Zap, Shield, Rocket, CheckCircle } from 'lucide-react';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-      {/* Hero Section */}
-      <section className="pt-32 pb-20 px-6 text-center">
-        <div className="max-w-5xl mx-auto">
-          <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
-            <CheckCircle className="w-4 h-4" />
-            100% Self-hosted • No backend needed
+    <>
+      {/* Hero */}
+      <section className="relative overflow-hidden pt-32 pb-24">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 via-purple-600/20 to-pink-600/20" />
+        <div className="relative max-w-7xl mx-auto px-6 text-center">
+          <div className="inline-flex items-center gap-3 bg-white/90 backdrop-blur-lg px-6 py-3 rounded-full text-sm font-bold text-blue-600 mb-8 shadow-xl">
+            <Zap className="w-5 h-5" />
+            Deployed in 30 seconds • 100% Free • Open Source
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6 leading-tight">
-            R3alm Headless SMTP
+          <h1 className="text-6xl md:text-8xl font-black mb-8 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight">
+            Headless SMTP<br />
+            <span className="text-5xl md:text-7xl">That Actually Looks Good</span>
           </h1>
-          <p className="text-xl md:text-2xl text-gray-600 mb-10 max-w-3xl mx-auto">
-            Send transactional emails instantly using your own SMTP server. 
-            Zero backend, zero lock-in, fully open source.
+
+          <p className="text-2xl text-gray-700 mb-12 max-w-4xl mx-auto font-light">
+            Send millions of transactional emails using your own SMTP server.
+            No backend. No lock-in. Just beauty and speed.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-6 justify-center">
+          <div className="flex flex-col sm:flex-row gap-8 justify-center">
             <Link
               href="/send-test"
-              className="inline-flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-bold py-5 px-10 rounded-xl text-lg transition shadow-lg"
+              className="group inline-flex items-center gap-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold text-xl py-6 px-12 rounded-2xl hover:scale-105 transition-all shadow-2xl"
             >
-              <Send className="w-6 h-6" />
-              Send Your First Email
+              <Rocket className="w-8 h-8 group-hover:translate-x-2 transition" />
+              Send Your First Email Now
             </Link>
             <Link
               href="/settings"
-              className="inline-flex items-center gap-3 bg-white hover:bg-gray-50 text-blue-600 border-2 border-blue-600 font-bold py-5 px-10 rounded-xl text-lg transition shadow-lg"
+              className="inline-flex items-center gap-4 bg-white/90 backdrop-blur-lg text-gray-800 font-bold text-xl py-6 px-12 rounded-2xl hover:scale-105 transition-all shadow-2xl border-2 border-gray-200"
             >
-              <Settings className="w-6 h-6" />
-              Configure SMTP
+              <Shield className="w-8 h-8" />
+              Configure in 10 Seconds
             </Link>
           </div>
         </div>
       </section>
 
       {/* Features */}
-      <section className="py-20 bg-white">
-        <div className="max-w-6xl mx-auto px-6">
-          <h2 className="text-4xl font-bold text-center mb-16">Everything you need</h2>
-          <div className="grid md:grid-cols-3 gap-10">
-            <div className="text-center">
-              <div className="w-20 h-20 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <Mail className="w-10 h-10 text-blue-600" />
+      <section className="py-24 bg-white/50 backdrop-blur">
+        <div className="max-w-7xl mx-auto px-6">
+          <h2 className="text-5xl font-black text-center mb-20 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Why Developers Love It
+          </h2>
+          <div className="grid md:grid-cols-3 gap-12">
+            {[
+              { icon: Send, title: "One-Line API", desc: "Just POST to /api/send — works with curl, JS, Python, Go..." },
+              { icon: Shield, title: "Self-Hosted", desc: "Your SMTP creds never leave your server" },
+              { icon: Zap, title: "Zero Latency", desc: "No third-party relay. Direct SMTP connection" },
+            ].map((f, i) => (
+              <div key={i} className="text-center group">
+                <div className="w-24 h-24 mx-auto mb-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-xl">
+                  <f.icon className="w-12 h-12 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold mb-4">{f.title}</h3>
+                <p className="text-gray-600 text-lg">{f.desc}</p>
               </div>
-              <h3 className="text-xl font-bold mb-3">Instant Delivery</h3>
-              <p className="text-gray-600">Send emails directly via your SMTP provider</p>
-            </div>
-            <div className="text-center">
-              <div className="w-20 h-20 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <CheckCircle className="w-10 h-10 text-green-600" />
-              </div>
-              <h3 className="text-xl font-bold mb-3">Zero Config API</h3>
-              <p className="text-gray-600">Just POST to /api/send — works with any language</p>
-            </div>
-            <div className="text-center">
-              <div className="w-20 h-20 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <Settings className="w-10 h-10 text-purple-600" />
-              </div>
-              <h3 className="text-xl font-bold mb-3">Beautiful Dashboard</h3>
-              <p className="text-gray-600">Configure and test everything in one place</p>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-12 text-center text-gray-500">
-        <p className="text-sm">
-          R3alm Headless SMTP • Open Source • Deployed on Vercel
+      <footer className="py-16 text-center">
+        <p className="text-gray-600 text-lg">
+          Built with <span className="text-red-500">♥</span> by the R3alm Ecosystem •{' '}
+          <a href="https://github.com/R3almEcosystem/R3almHeadlessSMTP" className="underline font-bold">
+            Star on GitHub
+          </a>
         </p>
       </footer>
-    </div>
+    </>
   );
 }
