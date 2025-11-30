@@ -1,14 +1,12 @@
-# wrangler.toml – V2.0 (Cloudflare Pages + API Routes + Node.js compat)
+# wrangler.toml – V4.0 (Cloudflare Pages Next.js – Fixed Assets + Node Compat)
 name = "r3alm-headless-smtp"
 compatibility_date = "2025-11-29"
 compatibility_flags = ["nodejs_compat"]
 
-# This tells Cloudflare where your built static files are
-[[assets]]
+# Static assets from Next.js build (CORRECT TOML SYNTAX)
+[assets]
 directory = ".next/static"
 binding = "ASSETS"
 
-# Optional: KV for config later (you can keep config.json for now)
-# [[kv_namespaces]]
-# binding = "CONFIG"
-# id = "your-kv-id"
+# Root is repo root
+root = "."
