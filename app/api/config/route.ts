@@ -1,7 +1,8 @@
-// app/api/config/route.ts – V8.0 (Edge Runtime for Cloudflare Pages)
-export const runtime = 'edge';  // ← THIS IS THE MAGIC LINE
+// app/api/config/route.ts – V9.0 (OpenNext + Full Node.js Runtime – Works on Cloudflare Pages 2025)
+// Version: 9.0
+// Runtime: Node.js (via OpenNext) – full fs, path, nodemailer support
 
-import { readFileSync, existsSync, mkdirSync } from 'fs';
+import { readFileSync, existsSync, mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { NextRequest } from 'next/server';
 
@@ -24,9 +25,18 @@ function getConfig(): Config {
   if (existsSync(filePath)) {
     return JSON.parse(readFileSync(filePath, 'utf-8'));
   }
+  // Default config if file missing
   return {
     adminPassword: 'Z3us!@#$1',
-    smtp: { host: 'mail.r3alm.com', port: 587, secure: false, user: 'no-reply@r3alm.com', pass: 'Z3us!@#$1r3alm', fromEmail: 'no-reply@r3alm.com', fromName: 'R3alm Ecosystem' },
+    smtp: {
+      host: 'mail.r3alm.com',
+      port: 587,
+      secure: false,
+      user: 'no-reply@r3alm.com',
+      pass: 'Z3us!@#$1r3alm',
+      fromEmail: 'no-reply@r3alm.com',
+      fromName: 'R3alm Ecosystem'
+    }
   };
 }
 
@@ -40,7 +50,11 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-  saveConfig(body);
-  return Response.json({ success: true });
+  try {
+    const body = await req.json();
+    saveConfig(body);
+    return Response.json({ success: true });
+  } catch (error) {
+    return Response.json({ error: 'Invalid JSON' }, { status: 400 });
+  }
 }
