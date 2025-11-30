@@ -1,4 +1,7 @@
-// app/api/send/route.ts – V9.0 (Edge Runtime + Polyfills for Cloudflare Pages)
+// app/api/send/route.ts – V11.0 (Edge Runtime + Polyfills for Cloudflare Pages)
+// Version: 11.0
+// Bundles with next-on-pages – fs polyfill with Fetch for config.json
+
 export const runtime = 'edge';  // Required for Cloudflare Pages API routes
 
 import nodemailer from 'nodemailer';
