@@ -1,5 +1,5 @@
-// open-next.config.ts – V2.0 (OpenNext Cloudflare Config – Fixed Default Export)
-// Version: 2.0
+// open-next.config.ts – V3.0 (OpenNext Cloudflare Config – Fixed Default Export)
+// Version: 3.0
 // Fixes "config.default cannot be empty" – full Node.js runtime for fs/nodemailer
 
 import type { OpenNextConfig } from '@opennextjs/cloudflare';
