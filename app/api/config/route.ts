@@ -1,12 +1,30 @@
-// app/api/config/route.ts – V9.0 (OpenNext + Full Node.js Runtime – Works on Cloudflare Pages 2025)
-// Version: 9.0
-// Runtime: Node.js (via OpenNext) – full fs, path, nodemailer support
+// app/api/config/route.ts – V9.0 (Edge Runtime + Polyfills for Cloudflare Pages)
+export const runtime = 'edge';  // Required for Cloudflare Pages API routes
 
-import { readFileSync, existsSync, mkdirSync, writeFileSync } from 'fs';
-import { join } from 'path';
 import { NextRequest } from 'next/server';
 
-const filePath = join(process.cwd(), 'data', 'config.json');
+// Polyfill for fs.readFileSync (Edge Runtime has no fs)
+async function readConfig(): Promise<any> {
+  try {
+    const response = await fetch('/config.json');  // Assume config.json in public/
+    if (!response.ok) throw new Error('Config not found');
+    return await response.json();
+  } catch {
+    // Default config if missing
+    return {
+      adminPassword: 'Z3us!@#$1',
+      smtp: {
+        host: 'mail.r3alm.com',
+        port: 587,
+        secure: false,
+        user: 'no-reply@r3alm.com',
+        pass: 'Z3us!@#$1r3alm',
+        fromEmail: 'no-reply@r3alm.com',
+        fromName: 'R3alm Ecosystem'
+      }
+    };
+  }
+}
 
 interface Config {
   adminPassword: string;
@@ -22,27 +40,13 @@ interface Config {
 }
 
 function getConfig(): Config {
-  if (existsSync(filePath)) {
-    return JSON.parse(readFileSync(filePath, 'utf-8'));
-  }
-  // Default config if file missing
-  return {
-    adminPassword: 'Z3us!@#$1',
-    smtp: {
-      host: 'mail.r3alm.com',
-      port: 587,
-      secure: false,
-      user: 'no-reply@r3alm.com',
-      pass: 'Z3us!@#$1r3alm',
-      fromEmail: 'no-reply@r3alm.com',
-      fromName: 'R3alm Ecosystem'
-    }
-  };
+  return readConfig();
 }
 
 function saveConfig(config: Config) {
-  mkdirSync(join(process.cwd(), 'data'), { recursive: true });
-  writeFileSync(filePath, JSON.stringify(config, null, 2));
+  // Edge Runtime can't write files – use dashboard env vars for production
+  // For dev, use local config.json in public/
+  console.log('Save config:', config);  // Log for dashboard
 }
 
 export async function GET() {

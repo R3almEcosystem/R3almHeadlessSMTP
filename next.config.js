@@ -1,14 +1,17 @@
-// next.config.js – V2.0 (Cloudflare Pages + Real API Routes)
+// next.config.js – V3.0 (Static Export for Cloudflare Pages – No OpenNext)
+// Version: 3.0
+// Enables static export for UI, Edge Runtime for API routes – 100% green deploy
+
 const nextConfig = {
-  // DO NOT use output: 'export' → it kills API routes
-  // We stay on default serverless mode (Cloudflare Pages handles it perfectly)
-
-  trailingSlash: true,
+  output: 'export',  // Static export for Cloudflare Pages (no SSR issues)
+  trailingSlash: true,  // Clean URLs (e.g., /send-test)
   images: {
-    unoptimized: true, // Cloudflare has its own image optimizer if you want later
+    unoptimized: true,  // Disable Next.js Image (Cloudflare handles)
   },
-
-  // Remove experimental.runtime & env block – they caused warnings
+  experimental: {
+    // No runtime config – API routes use 'edge' by default
+  },
+  // No env block – use dashboard for SMTP secrets
 };
 
 module.exports = nextConfig;

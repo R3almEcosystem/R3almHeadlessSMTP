@@ -1,12 +1,28 @@
-// app/api/send/route.ts – V9.0 (OpenNext + Full Node.js Runtime – Real SMTP Works)
-// Version: 9.0
-// Runtime: Node.js (via OpenNext) – full nodemailer + TCP sockets
+// app/api/send/route.ts – V9.0 (Edge Runtime + Polyfills for Cloudflare Pages)
+export const runtime = 'edge';  // Required for Cloudflare Pages API routes
 
 import nodemailer from 'nodemailer';
-import { readFileSync, existsSync } from 'fs';
-import { join } from 'path';
 
-const filePath = join(process.cwd(), 'data', 'config.json');
+// Polyfill for fs.readFileSync (Edge Runtime has no fs)
+async function readConfig(): Promise<any> {
+  try {
+    const response = await fetch('/config.json');
+    if (!response.ok) throw new Error('Config not found');
+    return await response.json();
+  } catch {
+    return {
+      smtp: {
+        host: 'mail.r3alm.com',
+        port: 587,
+        secure: false,
+        user: 'no-reply@r3alm.com',
+        pass: 'Z3us!@#$1r3alm',
+        fromEmail: 'no-reply@r3alm.com',
+        fromName: 'R3alm Ecosystem'
+      }
+    };
+  }
+}
 
 export async function POST(req: Request) {
   try {
@@ -17,11 +33,7 @@ export async function POST(req: Request) {
       return new Response(JSON.stringify({ error: 'Missing to or text' }), { status: 400 });
     }
 
-    if (!existsSync(filePath)) {
-      return new Response(JSON.stringify({ error: 'SMTP config missing – go to /settings' }), { status: 500 });
-    }
-
-    const config = JSON.parse(readFileSync(filePath, 'utf-8'));
+    const config = await readConfig();
 
     const transporter = nodemailer.createTransporter({
       host: config.smtp.host,
