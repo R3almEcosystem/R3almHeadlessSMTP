@@ -1,5 +1,5 @@
 // app/api/send/route.ts – V15.0 – TRUE HEADLESS SMTP (NO RESELL, WORKS ON VERCEL)
-export const dynamic = 'force-dynamic';
+//export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
   try {

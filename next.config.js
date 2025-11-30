@@ -1,22 +1,14 @@
-// next.config.js – V1.0 (Cloudflare Pages Optimization)
+// next.config.js – V2.0 (Cloudflare Pages + Real API Routes)
 const nextConfig = {
-  output: 'export',  // Static export for Cloudflare Pages (no SSR issues)
-  trailingSlash: true,  // Ensures /send-test/ works
+  // DO NOT use output: 'export' → it kills API routes
+  // We stay on default serverless mode (Cloudflare Pages handles it perfectly)
+
+  trailingSlash: true,
   images: {
-    unoptimized: true,  // Disable Next.js Image (use Cloudflare Images if needed)
+    unoptimized: true, // Cloudflare has its own image optimizer if you want later
   },
-  experimental: {
-    runtime: 'edge',  // Edge runtime for API routes (fast, no Node crashes)
-  },
-  env: {
-    // Your SMTP secrets (override in Cloudflare dashboard)
-    SMTP_HOST: 'mail.r3alm.com',
-    SMTP_PORT: 587,
-    SMTP_USER: 'no-reply@r3alm.com',
-    SMTP_PASS: 'Z3us!@#$1r3alm',
-    SMTP_FROM: 'no-reply@r3alm.com',
-    SMTP_NAME: 'R3alm Ecosystem',
-  },
+
+  // Remove experimental.runtime & env block – they caused warnings
 };
 
 module.exports = nextConfig;
