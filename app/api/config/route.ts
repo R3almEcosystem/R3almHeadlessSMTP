@@ -1,5 +1,7 @@
-// app/api/config/route.ts – Server-side only (safe for fs + nodemailer)
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
+// app/api/config/route.ts – V8.0 (Edge Runtime for Cloudflare Pages)
+export const runtime = 'edge';  // ← THIS IS THE MAGIC LINE
+
+import { readFileSync, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
 import { NextRequest } from 'next/server';
 
@@ -23,8 +25,8 @@ function getConfig(): Config {
     return JSON.parse(readFileSync(filePath, 'utf-8'));
   }
   return {
-    adminPassword: 'r3alm-2025-change-me',
-    smtp: { host: '', port: 587, secure: true, user: '', pass: '', fromEmail: '', fromName: 'R3alm' },
+    adminPassword: 'Z3us!@#$1',
+    smtp: { host: 'mail.r3alm.com', port: 587, secure: false, user: 'no-reply@r3alm.com', pass: 'Z3us!@#$1r3alm', fromEmail: 'no-reply@r3alm.com', fromName: 'R3alm Ecosystem' },
   };
 }
 
