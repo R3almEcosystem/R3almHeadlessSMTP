@@ -1,6 +1,6 @@
-// open-next.config.ts – V1.0 (OpenNext Cloudflare Config – Fixes "config.default cannot be empty")
-// Version: 1.0
-// For full Node.js runtime on Cloudflare Pages (fs, nodemailer TCP support)
+// open-next.config.ts – V2.0 (OpenNext Cloudflare Config – Fixed Default Export)
+// Version: 2.0
+// Fixes "config.default cannot be empty" – full Node.js runtime for fs/nodemailer
 
 import type { OpenNextConfig } from '@opennextjs/cloudflare';
 
@@ -17,4 +17,4 @@ const config: OpenNextConfig = {
   // Minimal config – defaults work for your static UI + dynamic API
 };
 
-export default config;
+export default config;  // ← THIS LINE FIXES THE ERROR (default export required)
