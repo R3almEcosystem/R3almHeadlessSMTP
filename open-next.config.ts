@@ -1,4 +1,7 @@
-// open-next.config.ts – V1.0 (OpenNext Cloudflare Config – Node.js Compat for fs/nodemailer)
+// open-next.config.ts – V1.0 (OpenNext Cloudflare Config – Fixes "config.default cannot be empty")
+// Version: 1.0
+// For full Node.js runtime on Cloudflare Pages (fs, nodemailer TCP support)
+
 import type { OpenNextConfig } from '@opennextjs/cloudflare';
 
 const config: OpenNextConfig = {
@@ -11,7 +14,7 @@ const config: OpenNextConfig = {
   // Output to .opennext for dashboard Path setting
   outdir: '.opennext',
   
-  // No other changes – defaults work for your static UI + dynamic API
+  // Minimal config – defaults work for your static UI + dynamic API
 };
 
 export default config;
