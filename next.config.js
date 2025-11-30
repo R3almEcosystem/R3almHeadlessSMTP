@@ -1,5 +1,5 @@
-// next.config.js – V3.0 (Static Export for Cloudflare Pages – No OpenNext)
-// Version: 3.0
+// next.config.js – V4.0 (Static Export for Cloudflare Pages – No OpenNext)
+// Version: 4.0
 // Enables static export for UI, Edge Runtime for API routes – 100% green deploy
 
 const nextConfig = {
@@ -8,10 +8,6 @@ const nextConfig = {
   images: {
     unoptimized: true,  // Disable Next.js Image (Cloudflare handles)
   },
-  experimental: {
-    // No runtime config – API routes use 'edge' by default
-  },
-  // No env block – use dashboard for SMTP secrets
 };
 
 module.exports = nextConfig;
